@@ -1,0 +1,33 @@
+# ─── Secrets & credentials (JAMAIS versionnés) ───────────────
+*.pem
+*.key
+*rootkey*
+*credentials*
+*.env
+.env
+jupyter-s3-conf.json
+P8_config_AWS*
+P8_cmd
+
+# ─── Données & résultats (trop lourds / non versionnés) ──────
+data/
+Results/
+*.parquet
+*.crc
+*.zip
+*.snappy.parquet
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ─── OS / éditeurs ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
