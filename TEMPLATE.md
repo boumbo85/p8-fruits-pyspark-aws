@@ -33,16 +33,21 @@ flowchart LR
 ## 5. Results
 *Numbers, outputs, metrics. Lead with the figures.*
 
-## 6. Interpretation
+## 6. Impact
+*What it concretely delivered — time saved, cost cut, errors avoided, dimensions
+reduced, scale reached. Always a number. For client/freelance work: € / hours / %.
+For academic or technical work: scalability, compute saved, reproducibility.*
+
+## 7. Interpretation
 *What the results mean.*
 
-## 7. Conclusion
+## 8. Conclusion
 *The take-away, in two lines.*
 
-## 8. Limits & Critical Review
+## 9. Limits & Critical Review
 *Honest look at what falls short.*
 
-## 9. Improvements & TODO Next
+## 10. Improvements & TODO Next
 *What we would do with more time.*
 
 ---

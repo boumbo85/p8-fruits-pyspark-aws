@@ -45,22 +45,30 @@ flowchart LR
 
 > 📊 *Exact variance retained and per-stage timings: see the notebook.*
 
-## 6. Interpretation
+## 6. Impact
+
+- **−69% feature size** (1280 → 400 dims) → less storage and cheaper downstream training/inference.
+- **Zero code change** between local test and cluster run → faster path from prototype to scale.
+- **Horizontally scalable by design** → the dataset can grow by orders of magnitude without re-architecting the data layer.
+
+> This was an academic project on a public dataset, so the impact is technical (scalability, compute saved), not financial. For client work the same section would report € saved / hours saved / errors avoided.
+
+## 7. Interpretation
 
 Running inference inside a `pandas_udf` with broadcast weights is what makes the pipeline scale: the model loads once per worker, not once per image. PCA at 400 components keeps the signal while cutting the feature size by ~69%, which matters as soon as the dataset grows beyond a few hundred images.
 
-## 7. Conclusion
+## 8. Conclusion
 
 A working, cloud-native feature-extraction pipeline that scales horizontally — the foundation a classifier or a mobile backend can be built on without reworking the data layer.
 
-## 8. Limits & Critical Review
+## 9. Limits & Critical Review
 
 - Validated on 688 images — the real test is a dataset 100× larger; the architecture supports it but it wasn't measured here.
 - No downstream classifier yet: the pipeline stops at reduced features.
 - Variance retained by PCA should be reported explicitly to justify the 400-component choice.
 - EMR cost/runtime trade-offs (cluster size vs. speed) were not benchmarked.
 
-## 9. Improvements & TODO Next
+## 10. Improvements & TODO Next
 
 - [ ] Report explained variance and tune `n_components` from it.
 - [ ] Add a classifier (e.g. Spark ML or a downstream Keras head) on the reduced features.
@@ -123,19 +131,26 @@ Voir le diagramme Mermaid ci-dessus (S3 → EMR → MobileNetV2 → PCA → S3 P
 - Features et sortie PCA persistées en **Parquet sur S3**, prêtes pour un classifieur.
 - Pipeline validé sur EMR — le même code passe du test local au cluster sans modification.
 
-## 6. Interprétation
+## 6. Impact
+- **−69 % de taille de features** (1280 → 400 dims) → moins de stockage et un entraînement/inférence moins coûteux en aval.
+- **Zéro changement de code** entre le test local et le cluster → du prototype à l'échelle plus vite.
+- **Scalable horizontalement par conception** → le dataset peut grossir d'un facteur 100 sans ré-architecturer la couche données.
+
+> Projet académique sur un dataset public : l'impact est technique (scalabilité, calcul économisé), pas financier. Pour une mission client, cette section rapporterait des € économisés / heures gagnées / erreurs évitées.
+
+## 7. Interprétation
 L'inférence dans un `pandas_udf` avec poids broadcastés, c'est ce qui fait tenir l'échelle : le modèle se charge une fois par worker, pas une fois par image. La PCA à 400 composantes garde le signal tout en réduisant la taille des features d'environ 69 %, ce qui devient critique dès que le dataset grossit.
 
-## 7. Conclusion
+## 8. Conclusion
 Un pipeline d'extraction de features cloud-native, fonctionnel et scalable horizontalement — la fondation sur laquelle un classifieur ou un backend mobile peut se construire sans retoucher la couche données.
 
-## 8. Limites & Regard critique
+## 9. Limites & Regard critique
 - Validé sur 688 images — le vrai test, c'est un dataset 100× plus grand ; l'archi le permet mais ça n'a pas été mesuré.
 - Pas encore de classifieur en aval : le pipeline s'arrête aux features réduites.
 - La variance expliquée par la PCA devrait être rapportée pour justifier le choix de 400 composantes.
 - Les arbitrages coût/temps EMR (taille cluster vs vitesse) n'ont pas été benchmarkés.
 
-## 9. Améliorations & TODO Next
+## 10. Améliorations & TODO Next
 - [ ] Rapporter la variance expliquée et régler `n_components` à partir de là.
 - [ ] Ajouter un classifieur sur les features réduites.
 - [ ] Benchmarker sur le Fruits-360 complet (~90k images) avec temps/coût cluster.
