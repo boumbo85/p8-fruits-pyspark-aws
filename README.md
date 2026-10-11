@@ -90,8 +90,11 @@ p8-fruits-pyspark-aws/
 ├── notebooks/
 │   └── p8_fruits_pyspark_aws.ipynb
 └── docs/
-    └── aws_setup.md         # EMR / S3 setup walkthrough (no secrets)
+    ├── aws_setup.md         # EMR / S3 setup walkthrough (no secrets)
+    └── presentation.pdf     # project defense slides (32 pages)
 ```
+
+📑 **Slides:** [`docs/presentation.pdf`](docs/presentation.pdf) — the project walkthrough presented for the defense.
 
 ## 📦 Data
 
