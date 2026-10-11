@@ -45,6 +45,10 @@ flowchart LR
 - Features and PCA output persisted as **Parquet on S3**, ready for a downstream classifier.
 - Pipeline validated on EMR — the same code scales from a local test to the cluster with no change.
 
+![PCA explained variance vs. number of components](docs/pca_variance.png)
+
+*400 components keep 92% of the variance while cutting dimensions by 69% — the chosen trade-off. [Reproduce this figure](docs/plot_pca_variance.py).*
+
 ## 6. Impact
 
 - **8× faster** feature extraction on the cluster (42 min local → 5 min on EMR).
@@ -136,6 +140,10 @@ Voir le diagramme Mermaid ci-dessus (S3 → EMR → MobileNetV2 → PCA → S3 P
 - **8× plus rapide sur le cluster** : extraction des features en **5 min sur EMR contre 42 min en local**.
 - Features et sortie PCA persistées en **Parquet sur S3**, prêtes pour un classifieur.
 - Pipeline validé sur EMR — le même code passe du test local au cluster sans modification.
+
+![Variance expliquée par la PCA en fonction du nombre de composantes](docs/pca_variance.png)
+
+*400 composantes conservent 92 % de la variance tout en réduisant les dimensions de 69 % — l'arbitrage retenu. [Reproduire ce graphique](docs/plot_pca_variance.py).*
 
 ## 6. Impact
 - **8× plus rapide** pour l'extraction des features sur le cluster (42 min en local → 5 min sur EMR).
