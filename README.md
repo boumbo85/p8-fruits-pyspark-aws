@@ -51,6 +51,17 @@ flowchart LR
 
 *400 components keep 92% of the variance while cutting dimensions by 69% — the chosen trade-off. [Reproduce this figure](docs/plot_pca_variance.py).*
 
+### Running on the cluster
+
+The pipeline ran on a real EMR cluster. The bootstrap action installs the Python
+dependencies on every node; a SSH tunnel + FoxyProxy opens JupyterHub on the driver.
+
+| EMR bootstrap action (bucket `oc-p8-part4`) | SSH tunnel → JupyterHub on the driver |
+| :---: | :---: |
+| ![EMR bootstrap action](docs/img/emr_bootstrap.png) | ![SSH tunnel to the EMR driver](docs/img/emr_ssh_tunnel.png) |
+
+*Infra identifiers (VPC / subnet / security-group IDs, key path) are redacted on purpose.*
+
 ## 6. Impact
 
 - **Horizontally scalable by design** → the dataset can grow by orders of magnitude without re-architecting the data layer. This is the real deliverable.
@@ -191,6 +202,18 @@ Voir le diagramme Mermaid ci-dessus (S3 → EMR → MobileNetV2 → PCA → S3 P
 ![Variance expliquée par la PCA en fonction du nombre de composantes](docs/pca_variance.png)
 
 *400 composantes conservent 92 % de la variance tout en réduisant les dimensions de 69 % — l'arbitrage retenu. [Reproduire ce graphique](docs/plot_pca_variance.py).*
+
+### Exécution sur le cluster
+
+Le pipeline a tourné sur un vrai cluster EMR. L'action d'amorçage (bootstrap)
+installe les dépendances Python sur chaque nœud ; un tunnel SSH + FoxyProxy
+ouvre JupyterHub sur le driver.
+
+| Action d'amorçage EMR (bucket `oc-p8-part4`) | Tunnel SSH → JupyterHub sur le driver |
+| :---: | :---: |
+| ![Action d'amorçage EMR](docs/img/emr_bootstrap.png) | ![Tunnel SSH vers le driver EMR](docs/img/emr_ssh_tunnel.png) |
+
+*Les identifiants d'infra (VPC / subnet / security groups, chemin de clé) sont masqués volontairement.*
 
 ## 6. Impact
 - **Scalable horizontalement par conception** → le dataset peut grossir d'un facteur 100 sans ré-architecturer la couche données. C'est le vrai livrable.
