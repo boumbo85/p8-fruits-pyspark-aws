@@ -51,6 +51,10 @@ flowchart LR
 
 *400 components keep 92% of the variance while cutting dimensions by 69% — the chosen trade-off. [Reproduce this figure](docs/plot_pca_variance.py).*
 
+**It really ran on the cluster** — Spark History Server on EMR, driver + 2 executors, reading images from S3 and writing Parquet back:
+
+![Spark jobs running on the EMR cluster (History Server)](docs/img/emr_spark_jobs.png)
+
 ## 6. Impact
 
 - **Horizontally scalable by design** → the dataset can grow by orders of magnitude without re-architecting the data layer. This is the real deliverable.
@@ -191,6 +195,10 @@ Voir le diagramme Mermaid ci-dessus (S3 → EMR → MobileNetV2 → PCA → S3 P
 ![Variance expliquée par la PCA en fonction du nombre de composantes](docs/pca_variance.png)
 
 *400 composantes conservent 92 % de la variance tout en réduisant les dimensions de 69 % — l'arbitrage retenu. [Reproduire ce graphique](docs/plot_pca_variance.py).*
+
+**Ça a bien tourné sur le cluster** — Spark History Server sur EMR, driver + 2 executors, lecture des images depuis S3 et écriture Parquet en retour :
+
+![Jobs Spark sur le cluster EMR (History Server)](docs/img/emr_spark_jobs.png)
 
 ## 6. Impact
 - **Scalable horizontalement par conception** → le dataset peut grossir d'un facteur 100 sans ré-architecturer la couche données. C'est le vrai livrable.
