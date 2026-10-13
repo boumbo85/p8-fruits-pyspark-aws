@@ -13,6 +13,7 @@ Output:
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -32,7 +33,7 @@ ax.plot(components, variance, "-o", color="#1d6fe8", linewidth=2.2,
 # Highlight the chosen trade-off
 ax.scatter([CHOSEN], [CHOSEN_VAR], s=180, facecolor="#ff5c8a",
            edgecolor="white", zorder=5, label=f"Chosen: {CHOSEN} comps")
-ax.annotate(f"400 components\n92% variance  (-69% dims)",
+ax.annotate("400 components\n92% variance  (-69% dims)",
             xy=(CHOSEN, CHOSEN_VAR), xytext=(430, 74),
             fontsize=10, fontweight="bold", color="#333",
             arrowprops=dict(arrowstyle="->", color="#ff5c8a", lw=1.6))

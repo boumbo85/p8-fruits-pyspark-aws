@@ -58,7 +58,13 @@ aws s3 cp ./data s3://<YOUR_BUCKET_NAME>/data --recursive
 - Launch an EMR cluster with **Spark** installed.
 - Attach an EC2 key pair for SSH (`<YOUR_KEY>.pem`, kept private, never committed).
 - Use a bootstrap action to install Python dependencies on the nodes
-  (TensorFlow, Pillow, pandas, pyarrow).
+  (TensorFlow, Pillow, pandas, pyarrow). Use the provided
+  [`scripts/bootstrap-emr.sh`](../scripts/bootstrap-emr.sh):
+
+  ```bash
+  aws s3 cp scripts/bootstrap-emr.sh s3://<YOUR_BUCKET>/bootstrap-emr.sh
+  # EMR → Create cluster → Bootstrap actions → s3://<YOUR_BUCKET>/bootstrap-emr.sh
+  ```
 - Give the EMR role read/write access to your S3 bucket.
 
 Connect to the cluster (SOCKS tunnel for the Spark/Jupyter UI):

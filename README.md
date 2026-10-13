@@ -1,5 +1,7 @@
 # 🍎 Fruits Image Classification — Distributed Feature Extraction on AWS EMR
 
+[![CI](https://github.com/boumbo85/p8-fruits-pyspark-aws/actions/workflows/ci.yml/badge.svg)](https://github.com/boumbo85/p8-fruits-pyspark-aws/actions/workflows/ci.yml)
+
 > A scalable PySpark pipeline that extracts image features with MobileNetV2 and reduces them with distributed PCA, running on an AWS EMR Spark cluster with S3 storage.
 
 **Stack:** `PySpark` · `TensorFlow / Keras` · `AWS EMR` · `AWS S3` · `MobileNetV2` · `Python`  |  **Status:** completed  |  **Year:** 2023
@@ -38,12 +40,12 @@ flowchart LR
 
 ## 5. Results
 
-- **688 images** processed end-to-end through the distributed pipeline.
+- **Same code runs local and on EMR with no change** — the point of the project: a pipeline distributed from day one.
 - **1280 → 400 dimensions** after PCA (`n_components = 400`), reducing storage and downstream compute while keeping most of the variance.
 - **PCA: 400 components → 92% of variance retained** (vs. 95% at 600, 60% at 50) — a deliberate trade-off, not a default.
-- **8× faster on the cluster**: feature extraction ran in **5 min on EMR vs. 42 min locally**.
+- **688 images** processed end-to-end through the distributed pipeline (a demo volume, not a scale benchmark — see *Limits*).
+- On this demo volume, cluster vs. laptop ran **~5 min on EMR vs. ~42 min locally**. Indicative only: at 688 images this reflects setup/parallelism overhead more than true scaling.
 - Features and PCA output persisted as **Parquet on S3**, ready for a downstream classifier.
-- Pipeline validated on EMR — the same code scales from a local test to the cluster with no change.
 
 ![PCA explained variance vs. number of components](docs/pca_variance.png)
 
@@ -51,12 +53,12 @@ flowchart LR
 
 ## 6. Impact
 
-- **8× faster** feature extraction on the cluster (42 min local → 5 min on EMR).
-- **−69% feature size** (1280 → 400 dims) while keeping **92% of the variance** → cheaper storage and downstream training with almost no signal lost.
+- **Horizontally scalable by design** → the dataset can grow by orders of magnitude without re-architecting the data layer. This is the real deliverable.
 - **Zero code change** between local test and cluster run → faster path from prototype to scale.
-- **Horizontally scalable by design** → the dataset can grow by orders of magnitude without re-architecting the data layer.
+- **−69% feature size** (1280 → 400 dims) while keeping **92% of the variance** → cheaper storage and downstream training with almost no signal lost.
+- Faster on the cluster at this volume (~42 min → ~5 min), but 688 images is too small to call it a scaling benchmark — the number is honest, not a selling point.
 
-> This was an academic project on a public dataset, so the impact is technical (scalability, compute saved), not financial. For client work the same section would report € saved / hours saved / errors avoided.
+> Academic project on a public dataset at demo volume, so the impact is architectural (a pipeline that scales), not a measured production win. For client work this section would report € saved / hours saved / errors avoided on real volume.
 
 ## 7. Interpretation
 
@@ -89,14 +91,30 @@ A working, cloud-native feature-extraction pipeline that scales horizontally —
 p8-fruits-pyspark-aws/
 ├── README.md
 ├── TEMPLATE.md              # reusable project template
+├── pyproject.toml           # ruff + pytest config
 ├── requirements.txt
+├── requirements-dev.txt     # ruff, pytest (CI)
 ├── .gitignore
+├── .github/workflows/
+│   └── ci.yml               # lint (ruff) + tests (pytest) on push/PR
+├── src/
+│   ├── featurize_pca.py     # deployable spark-submit driver (parameterized)
+│   └── transforms.py        # pure, Spark/TF-free transforms (unit-tested)
+├── tests/
+│   └── test_transforms.py   # pytest — label + image preprocessing logic
+├── scripts/
+│   └── bootstrap-emr.sh     # EMR bootstrap action — installs deps on every node
 ├── notebooks/
-│   └── p8_fruits_pyspark_aws.ipynb
+│   └── p8_fruits_pyspark_aws.ipynb   # exploratory version
 └── docs/
     ├── aws_setup.md         # EMR / S3 setup walkthrough (no secrets)
     └── presentation.pdf     # project defense slides (32 pages)
 ```
+
+The notebook is the exploratory version; `src/featurize_pca.py` is the same
+pipeline as a deployable, parameterized `spark-submit` job. The pure logic
+(label parsing, image preprocessing) lives in `src/transforms.py` so it can be
+unit-tested without a Spark cluster or TensorFlow — that's what CI runs.
 
 📑 **Slides:** [`docs/presentation.pdf`](docs/presentation.pdf) — the project walkthrough presented for the defense.
 
@@ -106,11 +124,40 @@ This project uses the public **[Fruits-360 dataset](https://www.kaggle.com/datas
 
 ## ▶️ Run
 
+**As a deployable job on the cluster (recommended):**
+
+```bash
+spark-submit src/featurize_pca.py \
+    --input  s3://<YOUR_BUCKET>/data/Test/ \
+    --output s3://<YOUR_BUCKET>/Results/ \
+    --n-components 400
+```
+
+The EMR cluster installs its Python dependencies from
+[`scripts/bootstrap-emr.sh`](scripts/bootstrap-emr.sh) (set as a bootstrap action).
+
+**Or explore interactively:**
+
 ```bash
 pip install -r requirements.txt
 # then open notebooks/p8_fruits_pyspark_aws.ipynb on your EMR cluster
 ```
-See [`docs/aws_setup.md`](docs/aws_setup.md) for the EMR + S3 setup.
+
+See [`docs/aws_setup.md`](docs/aws_setup.md) for the full EMR + S3 setup.
+
+## 🧪 Dev / tests
+
+Lint and tests run in CI on every push; to run them locally:
+
+```bash
+pip install -r requirements-dev.txt
+ruff check .      # lint
+pytest -q         # unit tests (no Spark / TensorFlow needed)
+```
+
+Tests cover the pure transforms in `src/transforms.py` (label parsing, image
+preprocessing). The Spark/TensorFlow pipeline itself needs a cluster and isn't
+exercised in CI by design.
 
 ---
 
@@ -134,24 +181,24 @@ Voir le diagramme Mermaid ci-dessus (S3 → EMR → MobileNetV2 → PCA → S3 P
 - Écriture des résultats sur **S3 au format Parquet**.
 
 ## 5. Résultats
-- **688 images** traitées de bout en bout.
+- **Le même code tourne en local et sur EMR sans modification** — c'est tout l'enjeu : un pipeline distribué dès le départ.
 - **1280 → 400 dimensions** après PCA (`n_components = 400`), moins de stockage et de calcul en aval.
 - **PCA : 400 composantes → 92 % de variance conservée** (vs 95 % à 600, 60 % à 50) — un arbitrage assumé, pas une valeur par défaut.
-- **8× plus rapide sur le cluster** : extraction des features en **5 min sur EMR contre 42 min en local**.
+- **688 images** traitées de bout en bout (un volume de démo, pas un benchmark de passage à l'échelle — voir *Limites*).
+- Sur ce volume de démo, cluster vs portable : **~5 min sur EMR contre ~42 min en local**. À titre indicatif seulement : à 688 images, ça reflète surtout l'overhead de setup/parallélisme, pas un vrai gain d'échelle.
 - Features et sortie PCA persistées en **Parquet sur S3**, prêtes pour un classifieur.
-- Pipeline validé sur EMR — le même code passe du test local au cluster sans modification.
 
 ![Variance expliquée par la PCA en fonction du nombre de composantes](docs/pca_variance.png)
 
 *400 composantes conservent 92 % de la variance tout en réduisant les dimensions de 69 % — l'arbitrage retenu. [Reproduire ce graphique](docs/plot_pca_variance.py).*
 
 ## 6. Impact
-- **8× plus rapide** pour l'extraction des features sur le cluster (42 min en local → 5 min sur EMR).
-- **−69 % de taille de features** (1280 → 400 dims) tout en gardant **92 % de la variance** → stockage et entraînement en aval moins coûteux, presque sans perte de signal.
+- **Scalable horizontalement par conception** → le dataset peut grossir d'un facteur 100 sans ré-architecturer la couche données. C'est le vrai livrable.
 - **Zéro changement de code** entre le test local et le cluster → du prototype à l'échelle plus vite.
-- **Scalable horizontalement par conception** → le dataset peut grossir d'un facteur 100 sans ré-architecturer la couche données.
+- **−69 % de taille de features** (1280 → 400 dims) tout en gardant **92 % de la variance** → stockage et entraînement en aval moins coûteux, presque sans perte de signal.
+- Plus rapide sur le cluster à ce volume (~42 min → ~5 min), mais 688 images, c'est trop peu pour parler de benchmark de passage à l'échelle — le chiffre est honnête, pas un argument de vente.
 
-> Projet académique sur un dataset public : l'impact est technique (scalabilité, calcul économisé), pas financier. Pour une mission client, cette section rapporterait des € économisés / heures gagnées / erreurs évitées.
+> Projet académique sur un dataset public, à volume de démo : l'impact est architectural (un pipeline qui scale), pas un gain de production mesuré. Pour une mission client, cette section rapporterait des € économisés / heures gagnées / erreurs évitées sur du volume réel.
 
 ## 7. Interprétation
 L'inférence dans un `pandas_udf` avec poids broadcastés, c'est ce qui fait tenir l'échelle : le modèle se charge une fois par worker, pas une fois par image. La PCA à 400 composantes garde le signal tout en réduisant la taille des features d'environ 69 %, ce qui devient critique dès que le dataset grossit.
