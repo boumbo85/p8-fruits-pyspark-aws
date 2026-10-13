@@ -1,4 +1,4 @@
-# 🍎 Fruits Image Classification — Distributed Feature Extraction on AWS EMR
+# 🍎 Fruits — Distributed Image Feature Extraction on AWS EMR
 
 [![CI](https://github.com/boumbo85/p8-fruits-pyspark-aws/actions/workflows/ci.yml/badge.svg)](https://github.com/boumbo85/p8-fruits-pyspark-aws/actions/workflows/ci.yml)
 
